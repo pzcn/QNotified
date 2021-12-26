@@ -40,6 +40,13 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+    - name: Upload built apk
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: snapshot
+        path: |
+            ${{ github.workspace }}/app/build/outputs/apk
     - name: Post to channel
       if: contains(github.event.head_commit.message, '[skip post]') == false
       env:
