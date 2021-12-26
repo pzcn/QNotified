@@ -31,6 +31,7 @@ android {
             }
         }
     }
+    if (performSigning) {
         signingConfigs {
             create("release") {
                 storeFile = file("signing_keystore.jks")
@@ -41,6 +42,7 @@ android {
                 enableV2Signing = true
             }
         }
+    }
     buildTypes {
         getByName("release") {
             isShrinkResources = true
