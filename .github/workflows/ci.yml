@@ -15,11 +15,6 @@ jobs:
       with:
         fetch-depth: 0
         submodules: 'recursive'
-    - name: Decode Keystore
-      env:
-        ENCODED_STRING: ${{ secrets.SIGNING_KEY }}
-      run: |
-        echo $ENCODED_STRING | base64 -di > "app/signing_keystore.jks"
 
     - name: Prepare Java 11
       uses: actions/setup-java@v1
@@ -36,10 +31,18 @@ jobs:
     - name: Build project
       run: |
         ./gradlew :app:assemblerelease
+    - name: Sign Android release
+      if: success()
+      id: sign
+      uses: r0adkll/sign-android-release@v1.0.4
       env:
-          SIGNING_KEY_ALIAS: ${{ secrets.ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+        BUILD_TOOLS_VERSION: "31.0.0"
+      with:
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.ALIAS }}
+        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
     - name: Upload built apk
       if: success()
       uses: actions/upload-artifact@v2
@@ -52,7 +55,7 @@ jobs:
       env:
         CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-        MODULE: "${{ github.workspace }}/app/build/outputs/apk/release/app-release.apk"
+        MODULE: ${{ steps.sign.outputs.signedReleaseFile }}
         COMMIT_MESSAGE: |+
           ${{ github.event.head_commit.message }}
       run: |
