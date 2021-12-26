@@ -46,9 +46,7 @@ android {
             isShrinkResources = true
             isMinifyEnabled = true
             setProguardFiles(listOf(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"))
-            if (performSigning) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            signingConfig = signingConfigs.getByName("release")
             tasks.forEach {
                 if (it.name.contains("lint")) {
                     it.enabled = false
