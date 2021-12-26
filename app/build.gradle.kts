@@ -8,17 +8,13 @@ plugins {
     id("kotlin-android")
 }
 
-val signingFilePath = "signing.gradle"
-val performSigning = file(signingFilePath).exists()
-if (performSigning) {
-    apply(from = signingFilePath)
-}
+
 android {
     compileSdk = 31
     buildToolsVersion = "31.0.0"
     ndkVersion = "21.4.7075529"
     defaultConfig {
-        applicationId = "nil.nadph.qnotified"
+        applicationId = "qn.pedroz"
         minSdk = 21
         targetSdk = 31
         versionCode = Common.getTimeStamp()
@@ -38,7 +34,7 @@ android {
     if (performSigning) {
         signingConfigs {
             create("release") {
-                storeFile = file(signingFilePath)
+                storeFile = file("signing_keystore.jks")
                 storePassword = storePassword
                 keyAlias = keyAlias
                 keyPassword = keyPassword
