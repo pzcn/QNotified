@@ -1,3 +1,25 @@
+/*
+ * QNotified - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2022 dmca@ioctl.cc
+ * https://github.com/ferredoxin/QNotified
+ *
+ * This software is non-free but opensource software: you can redistribute it
+ * and/or modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version and our eula as published
+ * by ferredoxin.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * and eula along with this software.  If not, see
+ * <https://www.gnu.org/licenses/>
+ * <https://github.com/ferredoxin/QNotified/blob/master/LICENSE.md>.
+ */
+
 import java.io.PrintStream
 import java.net.URLClassLoader
 import java.nio.file.Paths
@@ -8,11 +30,6 @@ plugins {
     id("kotlin-android")
 }
 
-val signingFilePath = "signing.gradle"
-val performSigning = file(signingFilePath).exists()
-if (performSigning) {
-    apply(from = signingFilePath)
-}
 android {
     compileSdk = 31
     buildToolsVersion = "31.0.0"
@@ -23,7 +40,7 @@ android {
         targetSdk = 31
         versionCode = Common.getTimeStamp()
         // versionName = major.minor.accumulation.commit_id
-        versionName = "0.9.0" + (Common.getGitHeadRefsSuffix(rootProject))
+        versionName = "1.0.0" + (Common.getGitHeadRefsSuffix(rootProject))
         multiDexEnabled = false
         ndk {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
@@ -35,13 +52,13 @@ android {
             }
         }
     }
-    if (performSigning) {
+    if (System.getenv("KEYSTORE_PATH") != null) {
         signingConfigs {
             create("release") {
-                storeFile = file(signingFilePath)
-                storePassword = storePassword
-                keyAlias = keyAlias
-                keyPassword = keyPassword
+                storeFile = file(System.getenv("KEYSTORE_PATH"))
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
                 enableV1Signing = true
                 enableV2Signing = true
             }
@@ -52,7 +69,7 @@ android {
             isShrinkResources = true
             isMinifyEnabled = true
             setProguardFiles(listOf(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"))
-            if (performSigning) {
+            if (System.getenv("KEYSTORE_PATH") != null) {
                 signingConfig = signingConfigs.getByName("release")
             }
             tasks.forEach {
